@@ -140,21 +140,29 @@ public class GameSaveData
     public void UpdateOfflineProgress()
     {
         long currentTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long offlineSeconds = currentTimestamp - saveTimestamp;
         
-        // Update farm entities
+        if (offlineSeconds <= 0) return;
+
+        Debug.Log($"Processing offline time: {offlineSeconds} seconds");
+
+        // Update farm entities first - ensure they get the full offline time
         foreach (var entity in farmEntitiesData)
         {
             entity.UpdateFromOfflineTime(currentTimestamp);
         }
 
-        // Update workers - they can complete tasks while offline
-        foreach (var worker in workersData)
-        {
-            worker.UpdateFromOfflineTime(currentTimestamp);
-        }
+        // Simulate offline worker activities
+        var offlineSimulator = new OfflineEventSystem();
+        offlineSimulator.SimulateOfflineTime(offlineSeconds);
 
-        // Update busy workers count to match actual state
+        // Update busy workers count to match actual state after simulation
         playerData.busyWorkersCount = GetBusyWorkers().Count;
+        
+        // Update save timestamp
+        saveTimestamp = currentTimestamp;
+        
+        Debug.Log($"Offline progress completed: {farmEntitiesData.Count} entities updated, {workersData.Count} workers processed");
     }
 
     public bool IsValidSave()

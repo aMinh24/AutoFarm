@@ -19,7 +19,7 @@ MonoBehaviour:
   icon: {fileID: -1857658279, guid: 610121e8dc6ba1341a0f965886fcaafb, type: 3}
   baseProductionTime: 30
   baseYieldAmount: 1
-  totalYieldsLimit: 2
+  totalYieldsLimit: 100
   productProducedItemID: 8
   quantityPerPlot: 1
   seedItemID: 0

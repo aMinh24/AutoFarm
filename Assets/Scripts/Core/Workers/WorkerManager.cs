@@ -11,6 +11,7 @@ public class WorkerManager : BaseManager<WorkerManager>
     private WorkerUpdateService workerUpdateService;
     private WorkerTaskAssignmentService taskAssignmentService;
     private WorkerTaskProcessingService taskProcessingService;
+    private WorkerOfflineSimulationService offlineSimulationService;
     
     protected override void Awake()
     {
@@ -25,6 +26,7 @@ public class WorkerManager : BaseManager<WorkerManager>
         taskProcessingService = new WorkerTaskProcessingService();
         workerUpdateService = new WorkerUpdateService(workerService, taskProcessingService);
         taskAssignmentService = new WorkerTaskAssignmentService(workerService);
+        offlineSimulationService = new WorkerOfflineSimulationService(workerService);
     }
     
     private void SubscribeToTimers()
@@ -106,6 +108,16 @@ public class WorkerManager : BaseManager<WorkerManager>
     public string GetWorkerStatusSummary()
     {
         return workerService.GetWorkerStatusSummary();
+    }
+    
+    public OfflineSimulationResult SimulateOfflineWorkerActivities(long offlineSeconds)
+    {
+        return offlineSimulationService.SimulateWorkerActivities(offlineSeconds);
+    }
+
+    public string GetOfflineSimulationSummary(OfflineSimulationResult result)
+    {
+        return $"Offline Summary: {result.tasksCompleted} tasks completed, {result.tasksAssigned} tasks assigned in {result.totalOfflineTime} seconds";
     }
     
     #endregion

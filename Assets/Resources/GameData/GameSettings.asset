@@ -21,11 +21,15 @@ MonoBehaviour:
     amount: 10
   - itemID: 9
     amount: 2
-  startingWorkers: 1
-  startingEquipmentLevel: 1
-  workerTaskDuration: 2
+  startingWorkers: 0
+  startingEquipmentLevel: 0
+  workerTaskDuration: 5
   equipmentYieldBonusPerLevel: 0.1
   winConditionGold: 1000000
   cost_HireWorker: 500
   cost_UpgradeEquipment: 500
   cost_BuyLandPlot: 500
+  workerUpdateFrequency: 1
+  taskAssignmentFrequency: 2
+  enableOfflineWorkerSimulation: 1
+  maxOfflineSimulationHours: 24

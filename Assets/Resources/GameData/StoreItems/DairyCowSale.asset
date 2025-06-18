@@ -19,5 +19,5 @@ MonoBehaviour:
   icon: {fileID: -2088771375, guid: 1a251aca50b274746832f37ec71454bb, type: 3}
   amount: 1
   price: 100
-  referencedItemID: 0
+  referencedItemID: 9
   referencedEntityID: 4

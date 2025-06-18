@@ -117,6 +117,40 @@ public class GameDataManager : BaseManager<GameDataManager>
         gameDataService.SaveGameData(newData);
         LoadGameData();
     }
+
+    [Button]
+    public void SimulateOfflineTimeMinutes(int minutes)
+    {
+        if (!isInitialized)
+        {
+            Debug.LogWarning("Game not initialized. Cannot simulate offline time.");
+            return;
+        }
+
+        long offlineSeconds = minutes * 60;
+        Debug.Log($"Simulating {minutes} minutes ({offlineSeconds} seconds) of offline time...");
+
+        // Create offline event system and simulate
+        var offlineEventSystem = new OfflineEventSystem();
+        offlineEventSystem.SimulateOfflineTime(offlineSeconds);
+
+        // Force save game data after simulation
+        SaveGame();
+
+        // Update all UI elements
+        OnGoldChanged?.Invoke();
+        OnWorkerCountChanged?.Invoke();
+        OnInventoryChanged?.Invoke();
+        OnEquipmentLevelChanged?.Invoke();
+
+        // Force update plot displays
+        PlotManager.Instance?.RefreshPlotsFromGameData();
+        
+        // Broadcast game updated event
+        this.Broadcast(EventID.OnGameLoaded, gameDataService.GetCurrentGameData());
+
+        Debug.Log($"Offline simulation complete! Simulated {minutes} minutes of offline progress.");
+    }
     
     public bool HasSaveFile()
     {
@@ -394,5 +428,29 @@ public class GameDataManager : BaseManager<GameDataManager>
         return Mathf.RoundToInt(baseAmount * multiplier);
     }
     
+    #endregion
+
+    #region Offline Simulation
+
+    public void ProcessOfflineProgress()
+    {
+        if (DataManager?.GetCurrentGameData() != null)
+        {
+            // This will now include worker simulation
+            DataManager.GetCurrentGameData().UpdateOfflineProgress();
+            
+            // Trigger events to update UI
+            this.Broadcast(EventID.OnGameLoaded, null);
+            
+            Debug.Log("Offline progress processed including worker simulation");
+        }
+    }
+
+    public OfflineSimulationResult GetLastOfflineSimulationResult()
+    {
+        // This could be stored if we want to show offline summary to player
+        return new OfflineSimulationResult();
+    }
+
     #endregion
 }

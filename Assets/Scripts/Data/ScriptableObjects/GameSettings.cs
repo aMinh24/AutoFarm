@@ -30,6 +30,12 @@ public class GameSettings : ScriptableObject
     public int cost_UpgradeEquipment = 500;
     public int cost_BuyLandPlot = 500;
 
+    [Header("Offline Simulation")]
+    public float workerUpdateFrequency = 1f; // How often workers are updated (seconds)
+    public float taskAssignmentFrequency = 2f; // How often task assignment runs (seconds)
+    public bool enableOfflineWorkerSimulation = true;
+    public int maxOfflineSimulationHours = 24; // Limit offline simulation to prevent excessive processing
+
     // Helper method to get starting inventory as Dictionary
     public Dictionary<ItemID, int> GetStartingInventoryDictionary()
     {

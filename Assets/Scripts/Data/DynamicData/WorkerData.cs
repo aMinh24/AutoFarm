@@ -136,8 +136,49 @@ public class WorkerData
         long offlineSeconds = currentTimestamp - lastUpdateTimestamp;
         if (offlineSeconds > 0)
         {
-            UpdateTask(offlineSeconds);
+            // Process the full offline time for workers
+            float remainingTime = offlineSeconds;
+            
+            while (remainingTime > 0 && state == WorkerState.Busy)
+            {
+                float processTime = Mathf.Min(remainingTime, timeRemainingOnTask);
+                var result = UpdateTask(processTime);
+                remainingTime -= processTime;
+                
+                // If task completed, worker becomes idle
+                if (result.success && result.completedTask != WorkerTask.None)
+                {
+                    Debug.Log($"Worker {workerID} completed offline task: {result.completedTask}");
+                    break;
+                }
+            }
+            
+            // Update timestamp regardless of task completion
+            lastUpdateTimestamp = currentTimestamp;
         }
+    }
+
+    public WorkerTaskResult SimulateTaskUpdate(float deltaTime)
+    {
+        var result = new WorkerTaskResult
+        {
+            workerID = workerID,
+            completedTask = WorkerTask.None,
+            targetInstanceID = taskTargetInstanceID,
+            success = false
+        };
+        
+        if (state != WorkerState.Busy) return result;
+
+        float previousTimeRemaining = timeRemainingOnTask;
+        timeRemainingOnTask -= deltaTime;
+        
+        if (timeRemainingOnTask <= 0)
+        {
+            result = CompleteTask();
+        }
+
+        return result;
     }
 
     public float GetTaskProgress()
