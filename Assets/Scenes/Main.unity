@@ -2011,7 +2011,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f19fd842b40e68b45adcee59814f9304, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityDisplayPrefab: {fileID: 3095925642054422773, guid: cbf766e0831236645825f61807fbc35f, type: 3}
   entityPositions:
   - {fileID: 2450170497537705150}
   - {fileID: 1367147135}

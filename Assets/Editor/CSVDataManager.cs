@@ -156,11 +156,11 @@ public class CSVDataManager : EditorWindow
         }
         
         StringBuilder csv = new StringBuilder();
-        csv.AppendLine("EntityID,EntityName,EntityType,Description,BaseProductionTime,BaseYieldAmount,TotalYieldsLimit,ProductProducedItemID,SeedItemID,PurchasePrice,DecayTimeAfterLastYield");
+        csv.AppendLine("EntityID,EntityName,EntityType,Description,BaseProductionTime,BaseYieldAmount,TotalYieldsLimit,ProductProducedItemID,QuantityPerPlot,SeedItemID,PurchasePrice,DecayTimeAfterLastYield");
         
         foreach (var entity in entityCollection.entityDefinitions)
         {
-            csv.AppendLine($"{entity.entityID},{EscapeCSV(entity.entityName)},{entity.entityType},{EscapeCSV(entity.description)},{entity.baseProductionTime},{entity.baseYieldAmount},{entity.totalYieldsLimit},{entity.productProducedItemID},{entity.seedItemID},{entity.purchasePrice},{entity.decayTimeAfterLastYield}");
+            csv.AppendLine($"{entity.entityID},{EscapeCSV(entity.entityName)},{entity.entityType},{EscapeCSV(entity.description)},{entity.baseProductionTime},{entity.baseYieldAmount},{entity.totalYieldsLimit},{entity.productProducedItemID},{entity.quantityPerPlot},{entity.seedItemID},{entity.purchasePrice},{entity.decayTimeAfterLastYield}");
         }
         
         File.WriteAllText($"{csvExportPath}/EntityDefinitions.csv", csv.ToString());
@@ -268,7 +268,7 @@ public class CSVDataManager : EditorWindow
         for (int i = 1; i < lines.Length; i++) // Skip header
         {
             string[] values = ParseCSVLine(lines[i]);
-            if (values.Length >= 11)
+            if (values.Length >= 12)
             {
                 EntityDefinition existingEntity = entityCollection.entityDefinitions.Find(entity => entity.entityID.ToString() == values[0]);
                 if (existingEntity != null)
@@ -423,11 +423,13 @@ public class CSVDataManager : EditorWindow
             entity.totalYieldsLimit = yieldsLimit;
         if (Enum.TryParse<ItemID>(values[7], out ItemID productID))
             entity.productProducedItemID = productID;
-        if (Enum.TryParse<ItemID>(values[8], out ItemID seedID))
+        if (int.TryParse(values[8], out int quantityPerPlot))
+            entity.quantityPerPlot = quantityPerPlot;
+        if (Enum.TryParse<ItemID>(values[9], out ItemID seedID))
             entity.seedItemID = seedID;
-        if (int.TryParse(values[9], out int purchasePrice))
+        if (int.TryParse(values[10], out int purchasePrice))
             entity.purchasePrice = purchasePrice;
-        if (float.TryParse(values[10], out float decayTime))
+        if (float.TryParse(values[11], out float decayTime))
             entity.decayTimeAfterLastYield = decayTime;
             
         EditorUtility.SetDirty(entity);

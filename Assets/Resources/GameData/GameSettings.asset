@@ -23,7 +23,7 @@ MonoBehaviour:
     amount: 2
   startingWorkers: 0
   startingEquipmentLevel: 0
-  workerTaskDuration: 5
+  workerTaskDuration: 2
   equipmentYieldBonusPerLevel: 0.1
   winConditionGold: 1000000
   cost_HireWorker: 500

@@ -2,6 +2,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine;
 using System;
+using AutoFarm.Utilities;
 
 public class SlotUI : MonoBehaviour
 {
@@ -73,7 +74,7 @@ public class SlotUI : MonoBehaviour
     {
         if (priceText != null)
         {
-            priceText.text = price > 0 ? $"${price}" : string.Empty;
+            priceText.text = price > 0 ? FormatUtilities.FormatCurrency(price) : string.Empty;
             priceText.enabled = price > 0;
         }
     }

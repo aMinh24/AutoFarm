@@ -3,6 +3,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using AutoFarm.Utilities;
 
 public class MainUI : BaseScreen
 {
@@ -101,7 +102,22 @@ public class MainUI : BaseScreen
         if (goldCountText != null && GameDataManager.Instance != null)
         {
             long currentGold = GameDataManager.Instance.GetPlayerGold();
-            goldCountText.text = FormatNumber(currentGold);
+            goldCountText.text = FormatUtilities.FormatNumber(currentGold);
+            
+            // Check win condition
+            CheckWinCondition(currentGold);
+        }
+    }
+    
+    private void CheckWinCondition(long currentGold)
+    {
+        var gameSettings = GameDataManager.Instance?.gameSettings;
+        if (gameSettings != null && currentGold >= gameSettings.winConditionGold)
+        {
+            Debug.Log($"🎉 VICTORY! Player has reached win condition! Current Gold: {FormatUtilities.FormatCurrency(currentGold)} >= Target: {FormatUtilities.FormatCurrency(gameSettings.winConditionGold)}");
+            
+            // Optional: Show victory UI or trigger win event
+            // You can add more win condition logic here
         }
     }
     
@@ -143,14 +159,7 @@ public class MainUI : BaseScreen
     
     private string FormatNumber(long number)
     {
-        if (number >= 1000000000)
-            return $"{number / 1000000000f:F1}B";
-        else if (number >= 1000000)
-            return $"{number / 1000000f:F1}M";
-        else if (number >= 1000)
-            return $"{number / 1000f:F1}K";
-        else
-            return number.ToString();
+        return FormatUtilities.FormatNumber(number);
     }
     
     // Public methods to manually trigger updates

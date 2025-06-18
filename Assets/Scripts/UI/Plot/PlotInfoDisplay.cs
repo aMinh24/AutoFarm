@@ -118,15 +118,10 @@ public class PlotInfoDisplay : MonoBehaviour
         var entityDef = GameDataManager.Instance.GetEntity(entity.entityID);
         if (entityDef == null) return;
         
-        // Get all entities on the plot
-        var allEntities = PlotManager.Instance.GetPlotEntities(plotID);
-        int entityCount = allEntities.Count;
-        
-        // Update entity name with count
+        // Update entity name without count since EntityDisplayManager handles individual displays
         if (showEntityName && entityNameText != null)
         {
-            string displayName = $"{entityDef.entityName} ({entityCount}/{entityDef.quantityPerPlot})";
-            entityNameText.text = displayName;
+            entityNameText.text = entityDef.entityName;
             entityNameText.color = GetStateColor(entity.currentState);
         }
         

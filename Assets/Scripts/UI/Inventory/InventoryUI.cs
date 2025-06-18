@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using AutoFarm.Utilities;
 
 public class InventoryUI : BasePopup
 {
@@ -187,7 +188,7 @@ public class InventoryUI : BasePopup
             // Save changes
             GameDataManager.Instance.SaveGame();
             
-            Debug.Log($"Sold {sellQuantity} {selectedItem.itemName} for ${totalValue}");
+            Debug.Log($"Sold {sellQuantity} {selectedItem.itemName} for {FormatUtilities.FormatCurrency(totalValue)}");
             // Refresh display
             RefreshInventoryDisplay();
             ClearSelection();

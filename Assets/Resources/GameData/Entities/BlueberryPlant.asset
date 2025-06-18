@@ -16,7 +16,6 @@ MonoBehaviour:
   entityName: Blueberry Plant
   entityType: 0
   description: Grows sweet blueberries.
-  icon: {fileID: 1552302482, guid: a709b17dfee07be4ca6084595390f6e8, type: 3}
   baseProductionTime: 10
   baseYieldAmount: 1
   totalYieldsLimit: 40
@@ -25,3 +24,5 @@ MonoBehaviour:
   seedItemID: 3
   purchasePrice: 0
   decayTimeAfterLastYield: 60
+  entityPrefab: {fileID: 3095925642054422773, guid: 5d0bca2be0aa44e44ae2498c1f1c082a, type: 3}
+  icon: {fileID: 1552302482, guid: a709b17dfee07be4ca6084595390f6e8, type: 3}

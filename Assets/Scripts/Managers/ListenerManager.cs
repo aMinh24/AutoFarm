@@ -14,6 +14,7 @@ public enum EventID
     OnGameLoaded,
     OnDataError,
     OnNewGameStarted,
+    OnGameWon
 }
 public class ListenerManager : BaseManager<ListenerManager>
 {

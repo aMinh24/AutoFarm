@@ -75,18 +75,20 @@ namespace AutoFarm.Utilities
         #region Number Formatting
         
         /// <summary>
-        /// Formats numbers with appropriate suffixes (K, M, B, etc.)
+        /// Formats large numbers with appropriate suffixes (K, M, B, T)
         /// </summary>
         /// <param name="number">Number to format</param>
         /// <returns>Formatted number string</returns>
         public static string FormatNumber(long number)
         {
-            if (number >= 1000000000)
-                return $"{number / 1000000000.0:F1}B";
-            else if (number >= 1000000)
-                return $"{number / 1000000.0:F1}M";
-            else if (number >= 1000)
-                return $"{number / 1000.0:F1}K";
+            if (number >= 1000000000000) // Trillion
+                return $"{number / 1000000000000f:F1}T";
+            else if (number >= 1000000000) // Billion
+                return $"{number / 1000000000f:F1}B";
+            else if (number >= 1000000) // Million
+                return $"{number / 1000000f:F1}M";
+            else if (number >= 1000) // Thousand
+                return $"{number / 1000f:F1}K";
             else
                 return number.ToString();
         }
@@ -103,14 +105,14 @@ namespace AutoFarm.Utilities
         }
         
         /// <summary>
-        /// Formats percentage values
+        /// Formats currency with appropriate formatting
         /// </summary>
-        /// <param name="value">Value to format as percentage</param>
-        /// <param name="decimals">Number of decimal places</param>
-        /// <returns>Formatted percentage string</returns>
-        public static string FormatPercentage(float value, int decimals = 1)
+        /// <param name="amount">Currency amount</param>
+        /// <param name="currencySymbol">Currency symbol (default: $)</param>
+        /// <returns>Formatted currency string</returns>
+        public static string FormatCurrency(int amount, string currencySymbol = "$")
         {
-            return $"{(value * 100).ToString($"F{decimals}")}%";
+            return $"{currencySymbol}{FormatNumber(amount)}";
         }
         
         #endregion

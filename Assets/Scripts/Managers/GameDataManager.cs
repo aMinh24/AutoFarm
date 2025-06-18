@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using System.Linq;
 using Sirenix.OdinInspector;
+using AutoFarm.Utilities;
 
 public class GameDataManager : BaseManager<GameDataManager>
 {
@@ -172,18 +173,57 @@ public class GameDataManager : BaseManager<GameDataManager>
     
     public void AddPlayerGold(long amount) 
     {
+        var previousGold = gameDataService?.GetGold() ?? 0;
         gameDataService?.AddGold(amount);
+        var newGold = gameDataService?.GetGold() ?? 0;
+        
+        Debug.Log($"Gold added: +{FormatUtilities.FormatCurrency(amount)} (was {FormatUtilities.FormatCurrency(previousGold)}, now {FormatUtilities.FormatCurrency(newGold)})");
+        
+        // Check win condition
+        CheckWinCondition(newGold, previousGold);
+        
         OnGoldChanged?.Invoke();
     }
     
     public bool SpendPlayerGold(long amount) 
     {
+        var previousGold = gameDataService?.GetGold() ?? 0;
         bool result = gameDataService?.SpendGold(amount) ?? false;
         if (result)
         {
+            var newGold = gameDataService?.GetGold() ?? 0;
+            Debug.Log($"Gold spent: -{FormatUtilities.FormatCurrency(amount)} (was {FormatUtilities.FormatCurrency(previousGold)}, now {FormatUtilities.FormatCurrency(newGold)})");
             OnGoldChanged?.Invoke();
         }
+        else
+        {
+            Debug.Log($"Cannot spend {FormatUtilities.FormatCurrency(amount)}. Current gold: {FormatUtilities.FormatCurrency(previousGold)}");
+        }
         return result;
+    }
+    
+    private void CheckWinCondition(long currentGold, long previousGold)
+    {
+        if (gameSettings != null)
+        {
+            // Check if we just crossed the win condition threshold
+            if (currentGold >= gameSettings.winConditionGold && previousGold < gameSettings.winConditionGold)
+            {
+                Debug.Log($"🏆 WIN CONDITION ACHIEVED! 🏆");
+                Debug.Log($"Target: {FormatUtilities.FormatCurrency(gameSettings.winConditionGold)}");
+                Debug.Log($"Current Gold: {FormatUtilities.FormatCurrency(currentGold)}");
+                Debug.Log($"Congratulations! You have successfully built a profitable farm empire!");
+                
+                // Broadcast win event
+                this.Broadcast(EventID.OnGameWon, currentGold);
+            }
+            else if (currentGold >= gameSettings.winConditionGold)
+            {
+                // Already won, but still log progress
+                var excess = currentGold - gameSettings.winConditionGold;
+                Debug.Log($"Win condition maintained. Gold: {FormatUtilities.FormatCurrency(currentGold)} (excess: {FormatUtilities.FormatCurrency(excess)})");
+            }
+        }
     }
     
     // Inventory management with events
@@ -444,12 +484,6 @@ public class GameDataManager : BaseManager<GameDataManager>
             
             Debug.Log("Offline progress processed including worker simulation");
         }
-    }
-
-    public OfflineSimulationResult GetLastOfflineSimulationResult()
-    {
-        // This could be stored if we want to show offline summary to player
-        return new OfflineSimulationResult();
     }
 
     #endregion

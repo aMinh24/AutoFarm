@@ -13,7 +13,20 @@ public class EntityDisplay : MonoBehaviour
     [Header("Position Settings")]
     public int positionIndex = -1;
     
+    // Behavior system
+    private IEntityBehavior currentBehavior;
+    private FarmEntityInstanceData currentEntityData;
+    
     public int PositionIndex => positionIndex;
+    
+    private void Update()
+    {
+        // Update behavior if active
+        if (currentBehavior != null && currentEntityData != null)
+        {
+            currentBehavior.UpdateBehavior(Time.deltaTime);
+        }
+    }
     
     /// <summary>
     /// Initialize the entity display with position index
@@ -21,9 +34,26 @@ public class EntityDisplay : MonoBehaviour
     public void Initialize(int position)
     {
         positionIndex = position;
+        
+        // Find sprite renderers in the prefab if not assigned
+        if (entitySprite == null)
+        {
+            entitySprite = GetComponentInChildren<SpriteRenderer>();
+        }
+        
+        if (productSprite == null)
+        {
+            // Look for a child object named "ProductSprite" or similar
+            Transform productTransform = transform.Find("ProductSprite") ?? transform.Find("Product") ?? transform.Find("Circle");
+            if (productTransform != null)
+            {
+                productSprite = productTransform.GetComponent<SpriteRenderer>();
+            }
+        }
+        
         ClearDisplay();
         
-        // Make this clickable for interactions
+        // Ensure this object has a collider for interactions
         var collider = GetComponent<Collider2D>();
         if (collider == null)
         {
@@ -42,11 +72,47 @@ public class EntityDisplay : MonoBehaviour
             return;
         }
         
+        bool entityTypeChanged = currentEntityType != entityData.entityID;
+        bool stateChanged = currentState != entityData.currentState;
+        
         currentEntityType = entityData.entityID;
+        EntityState previousState = currentState;
         currentState = entityData.currentState;
+        currentEntityData = entityData;
+        
+        // Handle entity type change (setup behavior)
+        if (entityTypeChanged)
+        {
+            SetupEntityBehavior();
+        }
+        
+        // Handle state change
+        if (stateChanged && currentBehavior != null)
+        {
+            currentBehavior.OnStateChanged(currentState);
+        }
         
         UpdateEntitySprite();
         UpdateProductSprite();
+    }
+    
+    private void SetupEntityBehavior()
+    {
+        // Cleanup previous behavior
+        if (currentBehavior != null)
+        {
+            currentBehavior.Cleanup();
+            currentBehavior = null;
+        }
+        
+        if (currentEntityType == EntityID.None) return;
+        
+        // Create appropriate behavior
+        currentBehavior = EntityBehaviorFactory.CreateBehavior(currentEntityType);
+        if (currentBehavior != null)
+        {
+            currentBehavior.Initialize(transform, currentEntityData);
+        }
     }
     
     /// <summary>
@@ -54,19 +120,20 @@ public class EntityDisplay : MonoBehaviour
     /// </summary>
     private void UpdateEntitySprite()
     {
-        if (entitySprite == null || GameDataManager.Instance == null) return;
+        if (entitySprite == null) return;
         
         if (currentEntityType != EntityID.None)
         {
-            var entityDef = GameDataManager.Instance.GetEntity(currentEntityType);
-            if (entityDef != null && entityDef.icon != null)
+            entitySprite.gameObject.SetActive(true);
+            // The sprite should already be set correctly from the prefab
+            // but we can override with icon if needed
+            if (GameDataManager.Instance != null)
             {
-                entitySprite.sprite = entityDef.icon;
-                entitySprite.gameObject.SetActive(true);
-            }
-            else
-            {
-                entitySprite.gameObject.SetActive(false);
+                var entityDef = GameDataManager.Instance.GetEntity(currentEntityType);
+                if (entityDef?.icon != null)
+                {
+                    entitySprite.sprite = entityDef.icon;
+                }
             }
         }
         else
@@ -80,37 +147,40 @@ public class EntityDisplay : MonoBehaviour
     /// </summary>
     private void UpdateProductSprite()
     {
-        if (productSprite == null || GameDataManager.Instance == null) return;
+        if (productSprite == null) return;
         
         // Show product sprite if there are accumulated products ready for harvest
         var entity = PlotManager.Instance?.GetCurrentPlotEntityAtPosition(positionIndex);
         if (entity != null && entity.accumulatedProducts > 0 && currentEntityType != EntityID.None)
         {
-            var entityDef = GameDataManager.Instance.GetEntity(currentEntityType);
-            if (entityDef != null)
+            if (GameDataManager.Instance != null)
             {
-                var itemDef = GameDataManager.Instance.GetItem(entityDef.productProducedItemID);
-                if (itemDef != null && itemDef.icon != null)
+                var entityDef = GameDataManager.Instance.GetEntity(currentEntityType);
+                if (entityDef != null)
                 {
-                    productSprite.sprite = itemDef.icon;
-                    productSprite.gameObject.SetActive(true);
-                    
-                    // Add text component to show quantity with equipment bonus
-                    var textComponent = productSprite.GetComponentInChildren<TMPro.TextMeshPro>();
-                    if (textComponent != null)
+                    var itemDef = GameDataManager.Instance.GetItem(entityDef.productProducedItemID);
+                    if (itemDef?.icon != null)
                     {
-                        int bonusAdjustedAmount = GameDataManager.Instance?.GetBonusAdjustedAmount(entity.accumulatedProducts) ?? entity.accumulatedProducts;
-                        if (bonusAdjustedAmount > 1)
+                        productSprite.sprite = itemDef.icon;
+                        productSprite.gameObject.SetActive(true);
+                        
+                        // Add text component to show quantity with equipment bonus
+                        var textComponent = productSprite.GetComponentInChildren<TMPro.TextMeshPro>();
+                        if (textComponent != null)
                         {
-                            textComponent.text = $"x{bonusAdjustedAmount}";
-                            textComponent.gameObject.SetActive(true);
+                            int bonusAdjustedAmount = GameDataManager.Instance.GetBonusAdjustedAmount(entity.accumulatedProducts);
+                            if (bonusAdjustedAmount > 1)
+                            {
+                                textComponent.text = $"x{bonusAdjustedAmount}";
+                                textComponent.gameObject.SetActive(true);
+                            }
+                            else
+                            {
+                                textComponent.gameObject.SetActive(false);
+                            }
                         }
-                        else
-                        {
-                            textComponent.gameObject.SetActive(false);
-                        }
+                        return;
                     }
-                    return;
                 }
             }
         }
@@ -130,8 +200,15 @@ public class EntityDisplay : MonoBehaviour
     /// </summary>
     public void ClearDisplay()
     {
-        currentEntityType = EntityID.None;
+        // Cleanup behavior
+        if (currentBehavior != null)
+        {
+            currentBehavior.Cleanup();
+            currentBehavior = null;
+        }
+        
         currentState = EntityState.Dead;
+        currentEntityData = null;
         
         if (entitySprite != null)
             entitySprite.gameObject.SetActive(false);
@@ -139,4 +216,22 @@ public class EntityDisplay : MonoBehaviour
         if (productSprite != null)
             productSprite.gameObject.SetActive(false);
     }
+    
+    public void OnHarvested()
+    {
+        if (currentBehavior != null)
+        {
+            currentBehavior.OnHarvested();
+        }
+    }
+    
+    private void OnDestroy()
+    {
+        if (currentBehavior != null)
+        {
+            currentBehavior.Cleanup();
+            currentBehavior = null;
+        }
+    }
 }
+       

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using AutoFarm.Utilities;
 
 public class FrameUI : MonoBehaviour
 {
@@ -129,7 +130,14 @@ public class FrameUI : MonoBehaviour
         if (GameDataManager.Instance?.PlayerData?.GetPlayerData() != null)
         {
             var playerData = GameDataManager.Instance.PlayerData.GetPlayerData();
-            return playerData.currentGold >= item.price;
+            bool canAfford = playerData.currentGold >= item.price;
+            
+            if (!canAfford)
+            {
+                Debug.Log($"Cannot afford {item.displayName}. Need {FormatUtilities.FormatCurrency(item.price)}, have {FormatUtilities.FormatCurrency(playerData.currentGold)}");
+            }
+            
+            return canAfford;
         }
         return true;
     }
@@ -221,4 +229,3 @@ public class FrameUI : MonoBehaviour
         ClearSlots();
     }
 }
-       

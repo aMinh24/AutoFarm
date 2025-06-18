@@ -4,13 +4,13 @@ using System.Collections.Generic;
 public class EntityDisplayManager : MonoBehaviour
 {
     [Header("Entity Display Settings")]
-    public GameObject entityDisplayPrefab;
     public Transform[] entityPositions; // Pre-defined positions for entities (10 for trees, 1 for cow)
     
     [Header("Current Plot Configuration")]
     public int maxEntitiesForCurrentPlot = 10; // Can be changed based on plot type
     
     private List<EntityDisplay> entityDisplays = new List<EntityDisplay>();
+    private EntityID currentEntityType = EntityID.None;
     
     private void Start()
     {
@@ -21,33 +21,68 @@ public class EntityDisplayManager : MonoBehaviour
     {
         ClearEntityDisplays();
         
-        // Create entity displays for all positions
-        for (int i = 0; i < entityPositions.Length && i < maxEntitiesForCurrentPlot; i++)
+        // Wait for entity data to determine what prefabs to use
+        // This will be called from UpdateEntityDisplays when we have entity data
+    }
+    
+    private void CreateEntityDisplaysForType(EntityID entityType, int quantity)
+    {
+        if (entityType == EntityID.None || GameDataManager.Instance == null)
+            return;
+            
+        var entityDef = GameDataManager.Instance.GetEntity(entityType);
+        if (entityDef?.entityPrefab == null)
+            return;
+        
+        currentEntityType = entityType;
+        maxEntitiesForCurrentPlot = quantity;
+        
+        // Create entity displays using the prefab
+        for (int i = 0; i < quantity && i < entityPositions.Length; i++)
         {
-            CreateEntityDisplay(i);
+            CreateEntityDisplayFromPrefab(entityDef.entityPrefab, i);
         }
     }
     
-    private void CreateEntityDisplay(int positionIndex)
+    private void CreateEntityDisplayFromPrefab(GameObject prefab, int positionIndex)
     {
-        if (positionIndex >= entityPositions.Length || entityDisplayPrefab == null)
+        if (positionIndex >= entityPositions.Length)
             return;
             
-        GameObject displayObj = Instantiate(entityDisplayPrefab, entityPositions[positionIndex]);
+        // Instantiate the prefab which should already have EntityDisplay component
+        GameObject displayObj = Instantiate(prefab, entityPositions[positionIndex]);
         displayObj.transform.localPosition = Vector3.zero;
         
+        // Get the EntityDisplay component from the prefab
         EntityDisplay entityDisplay = displayObj.GetComponent<EntityDisplay>();
         if (entityDisplay == null)
         {
-            entityDisplay = displayObj.AddComponent<EntityDisplay>();
+            Debug.LogError($"Prefab {prefab.name} doesn't have EntityDisplay component!");
+            DestroyImmediate(displayObj);
+            return;
         }
         
+        // Initialize the display
         entityDisplay.Initialize(positionIndex);
         entityDisplays.Add(entityDisplay);
     }
     
     public void UpdateEntityDisplays(List<FarmEntityInstanceData> entities)
     {
+        // Determine if we need to recreate displays for a different entity type
+        if (entities.Count > 0)
+        {
+            var firstEntity = entities[0];
+            var entityDef = GameDataManager.Instance?.GetEntity(firstEntity.entityID);
+            
+            if (entityDef != null && (currentEntityType != firstEntity.entityID || entityDisplays.Count == 0))
+            {
+                // Clear and recreate displays for new entity type
+                ClearEntityDisplays();
+                CreateEntityDisplaysForType(firstEntity.entityID, entityDef.quantityPerPlot);
+            }
+        }
+        
         // Clear all displays first
         foreach (var display in entityDisplays)
         {
@@ -60,35 +95,6 @@ public class EntityDisplayManager : MonoBehaviour
             if (entity.positionIndex >= 0 && entity.positionIndex < entityDisplays.Count)
             {
                 entityDisplays[entity.positionIndex].UpdateDisplay(entity);
-            }
-        }
-        
-        // Ensure we only show displays up to the required quantity for current entity type
-        if (entities.Count > 0)
-        {
-            var firstEntity = entities[0];
-            var entityDef = GameDataManager.Instance?.GetEntity(firstEntity.entityID);
-            if (entityDef != null)
-            {
-                maxEntitiesForCurrentPlot = entityDef.quantityPerPlot;
-                
-                // Hide excess displays if current entity type requires fewer slots
-                for (int i = maxEntitiesForCurrentPlot; i < entityDisplays.Count; i++)
-                {
-                    if (entityDisplays[i] != null)
-                    {
-                        entityDisplays[i].gameObject.SetActive(false);
-                    }
-                }
-                
-                // Show required displays
-                for (int i = 0; i < maxEntitiesForCurrentPlot && i < entityDisplays.Count; i++)
-                {
-                    if (entityDisplays[i] != null)
-                    {
-                        entityDisplays[i].gameObject.SetActive(true);
-                    }
-                }
             }
         }
     }
@@ -118,6 +124,7 @@ public class EntityDisplayManager : MonoBehaviour
             }
         }
         entityDisplays.Clear();
+        currentEntityType = EntityID.None;
     }
 
 }

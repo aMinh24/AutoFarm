@@ -1,3 +1,4 @@
+using AutoFarm.Utilities;
 using TMPro;
 using UnityEngine;
 
@@ -23,14 +24,14 @@ public class InventoryDetailUI : MonoBehaviour
 
         if (sellPriceItem != null)
         {
-            sellPriceItem.text = sellPrice > 0 ? $"Sell Price: ${sellPrice}" : "Cannot Sell";
+            sellPriceItem.text = sellPrice > 0 ? $"Sell Price: {FormatUtilities.FormatCurrency(sellPrice)}" : "Cannot Sell";
         }
         
         
         if (totalValueItem != null)
         {
             int totalValue = sellPrice * quantity;
-            totalValueItem.text = totalValue > 0 ? $"Total Value: ${totalValue}" : "No Value";
+            totalValueItem.text = totalValue > 0 ? $"Total Value: {FormatUtilities.FormatCurrency(totalValue)}" : "No Value";
         }
     }
     

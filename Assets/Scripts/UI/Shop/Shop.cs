@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using AutoFarm.Utilities;
 
 public class Shop : BasePopup
 {
@@ -73,7 +74,7 @@ public class Shop : BasePopup
             detailUI.Setup(
                 item.displayName,
                 item.description,
-                $"${item.price}"
+                FormatUtilities.FormatCurrency(item.price)
             );
         }
     }
@@ -114,7 +115,7 @@ public class Shop : BasePopup
             shopFrame.UpdateSlotAvailability();
             UpdatePurchaseButton(selectedItem);
             
-            Debug.Log($"Purchased {selectedItem.displayName} for ${selectedItem.price}");
+            Debug.Log($"Purchased {selectedItem.displayName} for {FormatUtilities.FormatCurrency(selectedItem.price)}");
         }
     }
     

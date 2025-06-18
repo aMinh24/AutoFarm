@@ -9,7 +9,6 @@ public class EntityDefinition : ScriptableObject
     public EntityType entityType;
     [TextArea(2, 4)]
     public string description;
-    public Sprite icon; // Added icon field
 
     [Header("Production Settings")]
     public float baseProductionTime = 10f; // minutes
@@ -28,4 +27,8 @@ public class EntityDefinition : ScriptableObject
 
     [Header("Decay Settings")]
     public float decayTimeAfterLastYield = 60f; // minutes
+
+    [Header("Visual Settings")]
+    public GameObject entityPrefab; // Prefab for this entity type
+    public Sprite icon; // Icon for UI displays
 }

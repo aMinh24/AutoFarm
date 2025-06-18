@@ -32,10 +32,10 @@ public class DataGenerator
         ItemDefinition milkProduct = CreateItemDefinition("Milk", ItemID.Milk, ItemType.Product, "A gallon of fresh milk.", 15, 0, 1, EntityID.None, EntityID.MILK_COW);
 
         // Create EntityDefinitions
-        EntityDefinition tomatoPlant = CreateEntityDefinition("TomatoPlant", EntityID.TOMATO_PLANT, "Tomato Plant", EntityType.Plant, "Grows delicious tomatoes.", 10f, 1, 40, ItemID.Tomato, ItemID.TomatoSeed, 0, 60f);
-        EntityDefinition blueberryPlant = CreateEntityDefinition("BlueberryPlant", EntityID.BLUEBERRY_PLANT, "Blueberry Plant", EntityType.Plant, "Grows sweet blueberries.", 15f, 1, 40, ItemID.Blueberry, ItemID.BlueberrySeed, 0, 60f);
-        EntityDefinition strawberryPlant = CreateEntityDefinition("StrawberryPlant", EntityID.STRAWBERRY_PLANT, "Strawberry Plant", EntityType.Plant, "Grows juicy strawberries.", 5f, 1, 20, ItemID.Strawberry, ItemID.StrawberrySeed, 0, 60f);
-        EntityDefinition milkCow = CreateEntityDefinition("MilkCow", EntityID.MILK_COW, "Dairy Cow", EntityType.Animal, "Produces fresh milk.", 30f, 1, 100, ItemID.Milk, ItemID.None, 100, 60f);
+        EntityDefinition tomatoPlant = CreateEntityDefinition("TomatoPlant", EntityID.TOMATO_PLANT, "Tomato Plant", EntityType.Plant, "Grows delicious tomatoes.", 10f, 1, 40, ItemID.Tomato, ItemID.TomatoSeed, 0, 60f, 10);
+        EntityDefinition blueberryPlant = CreateEntityDefinition("BlueberryPlant", EntityID.BLUEBERRY_PLANT, "Blueberry Plant", EntityType.Plant, "Grows sweet blueberries.", 15f, 1, 40, ItemID.Blueberry, ItemID.BlueberrySeed, 0, 60f, 10);
+        EntityDefinition strawberryPlant = CreateEntityDefinition("StrawberryPlant", EntityID.STRAWBERRY_PLANT, "Strawberry Plant", EntityType.Plant, "Grows juicy strawberries.", 5f, 1, 20, ItemID.Strawberry, ItemID.StrawberrySeed, 0, 60f, 10);
+        EntityDefinition milkCow = CreateEntityDefinition("MilkCow", EntityID.MILK_COW, "Dairy Cow", EntityType.Animal, "Produces fresh milk.", 30f, 1, 100, ItemID.Milk, ItemID.None, 100, 60f, 1);
 
         // Create StoreItemDefinitions
         StoreItemDefinition tomatoSeedSale = CreateStoreItem("TomatoSeedSale", StoreID.TomatoSeedSale, "Tomato Seeds", "Buy tomato seeds.", PurchaseType.Seed, 1, 30, tomatoSeed.itemID, EntityID.None);
@@ -135,7 +135,7 @@ public class DataGenerator
         return itemDef;
     }
 
-    private static EntityDefinition CreateEntityDefinition(string assetName, EntityID id, string entityName, EntityType type, string desc, float prodTime, int yieldAmount, int yieldLimit, ItemID productID, ItemID seedID, int purchasePrice, float decayTime)
+    private static EntityDefinition CreateEntityDefinition(string assetName, EntityID id, string entityName, EntityType type, string desc, float prodTime, int yieldAmount, int yieldLimit, ItemID productID, ItemID seedID, int purchasePrice, float decayTime, int quantityPerPlot)
     {
         EntityDefinition entityDef = CreateAsset<EntityDefinition>(EntitiesPath, assetName);
         entityDef.name = assetName + "EntityDef"; // ScriptableObject.name
@@ -150,9 +150,7 @@ public class DataGenerator
         entityDef.seedItemID = seedID;
         entityDef.purchasePrice = purchasePrice;
         entityDef.decayTimeAfterLastYield = decayTime;
-        
-        // Set default quantity per plot based on entity type
-        entityDef.quantityPerPlot = (type == EntityType.Plant) ? 10 : 1;
+        entityDef.quantityPerPlot = quantityPerPlot;
         
         // entityDef.icon = null; // Default
         EditorUtility.SetDirty(entityDef);

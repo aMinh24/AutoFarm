@@ -1,4 +1,5 @@
 using System.Linq;
+using AutoFarm.Utilities;
 using UnityEngine;
 
 public class WorkerTaskAssignmentService
@@ -153,6 +154,7 @@ public class WorkerTaskAssignmentService
                         {
                             highestValue = totalValue;
                             bestItem = inventoryItem.Key;
+                            Debug.Log($"Best planting option: {itemDef.itemName} with total value {FormatUtilities.FormatCurrency(totalValue)}");
                         }
                     }
                 }
