@@ -30,6 +30,7 @@ public class GameSaveData
     public void InitializeNewGame()
     {
         playerData = new PlayerData();
+        playerData.InitializeForNewGame(); // Explicitly initialize for new game
         
         // Initialize plots based on starting land plots
         plotsData.Clear();

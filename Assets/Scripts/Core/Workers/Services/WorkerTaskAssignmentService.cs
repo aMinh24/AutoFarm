@@ -96,16 +96,25 @@ public class WorkerTaskAssignmentService
                 if (!isAlreadyAssigned)
                 {
                     var itemToPlant = GetBestItemToPlant();
-                    if (itemToPlant != ItemID.None && GameDataManager.Instance.HasPlayerItem(itemToPlant))
+                    if (itemToPlant != ItemID.None && PlotManager.Instance?.CanPlantOnPlot(plot.plotID, itemToPlant) == true)
                     {
                         // Start planting task
                         worker.AssignTask(WorkerTask.Plant, plot.plotID.ToString());
                         
-                        // Immediately plant the item and remove from inventory
-                        PlantItemOnPlot(plot, itemToPlant);
+                        // Use PlotManager's centralized planting logic
+                        var result = PlotManager.Instance.PlantItemOnPlot(plot.plotID, itemToPlant);
                         
-                        Debug.Log($"Assigned plant task to worker {worker.workerID} for plot {plot.plotID}");
-                        return true;
+                        if (result.success)
+                        {
+                            Debug.Log($"Worker {worker.workerID} planted {result.quantityPlanted} items on plot {plot.plotID}");
+                            return true;
+                        }
+                        else
+                        {
+                            // Revert worker assignment if planting failed
+                            worker.CancelTask();
+                            Debug.LogWarning($"Worker planting failed: {result.errorMessage}");
+                        }
                     }
                 }
             }
@@ -153,39 +162,6 @@ public class WorkerTaskAssignmentService
         return bestItem;
     }
     
-    private void PlantItemOnPlot(PlotData plot, ItemID itemID)
-    {
-        var itemDef = GameDataManager.Instance.GetItem(itemID);
-        if (itemDef?.growsIntoEntityID == EntityID.None) return;
-        
-        var entityDef = GameDataManager.Instance.GetEntity(itemDef.growsIntoEntityID);
-        if (entityDef == null) return;
-        
-        // Remove item from inventory
-        if (!GameDataManager.Instance.RemovePlayerItem(itemID, 1)) return;
-        
-        // Create entities based on quantity per plot
-        int quantityToCreate = entityDef.quantityPerPlot;
-        
-        for (int i = 0; i < quantityToCreate; i++)
-        {
-            var newEntity = new FarmEntityInstanceData(itemDef.growsIntoEntityID, plot.plotID, i);
-            GameDataManager.Instance.AddFarmEntity(newEntity);
-            
-            // Update plot to not be empty
-            if (i == 0)
-            {
-                plot.occupyingEntityInstanceID = newEntity.instanceID;
-                plot.plotState = PlotState.Occupied;
-            }
-        }
-        
-        GameDataManager.Instance.UpdatePlot(plot);
-        PlotManager.Instance?.UpdatePlotDisplay(plot.plotID);
-        
-        Debug.Log($"Planted {quantityToCreate} {itemDef.growsIntoEntityID} on plot {plot.plotID}");
-    }
-    
     public bool AssignWorkerToHarvestPlot(int plotID)
     {
         var idleWorkers = workerService.GetIdleWorkers();
@@ -218,16 +194,27 @@ public class WorkerTaskAssignmentService
         var idleWorkers = workerService.GetIdleWorkers();
         if (idleWorkers.Count == 0) return false;
         
-        var plot = GameDataManager.Instance.GetPlot(plotID);
-        if (plot?.IsEmpty() != true) return false;
-        
-        if (!GameDataManager.Instance.HasPlayerItem(itemID)) return false;
+        if (!PlotManager.Instance?.CanPlantOnPlot(plotID, itemID) == true) return false;
         
         var worker = idleWorkers.First();
         worker.AssignTask(WorkerTask.Plant, plotID.ToString());
         workerService.UpdateWorkerCounts();
         
-        Debug.Log($"Manually assigned plant task to worker {worker.workerID}");
-        return true;
+        // Use PlotManager's centralized planting logic
+        var result = PlotManager.Instance.PlantItemOnPlot(plotID, itemID);
+        
+        if (result.success)
+        {
+            Debug.Log($"Manually assigned plant task to worker {worker.workerID} - planted {result.quantityPlanted} items");
+            return true;
+        }
+        else
+        {
+            // Revert worker assignment if planting failed
+            worker.CancelTask();
+            workerService.UpdateWorkerCounts();
+            Debug.LogWarning($"Manual worker planting failed: {result.errorMessage}");
+            return false;
+        }
     }
 }

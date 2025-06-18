@@ -162,14 +162,8 @@ public class InventoryUI : BasePopup
             return false;
         }
         
-        // Check if player has enough quantity
-        var entityDef = GameDataManager.Instance?.GetEntity(item.growsIntoEntityID);
-        if (entityDef != null)
-        {
-            return GameDataManager.Instance.HasPlayerItem(item.itemID, entityDef.quantityPerPlot);
-        }
-        
-        return false;
+        // Use PlotManager to check if can plant
+        return PlotManager.Instance?.CanPlantOnCurrentPlot(item.itemID) ?? false;
     }
     
     private void SellSelectedItems()
@@ -205,58 +199,24 @@ public class InventoryUI : BasePopup
     {
         if (selectedItem == null || !CanUseForFarming(selectedItem)) return;
         
-        var entityDef = GameDataManager.Instance?.GetEntity(selectedItem.growsIntoEntityID);
-        if (entityDef == null) return;
-        
-        int requiredQuantity = entityDef.quantityPerPlot;
-        
-        // Check if player has enough items
-        if (!GameDataManager.Instance.HasPlayerItem(selectedItem.itemID, requiredQuantity)) return;
-        
-        // Try to place entities on current plot
+        // Use PlotManager's centralized planting logic
         if (PlotManager.Instance != null)
         {
-            var plotInfo = PlotManager.Instance.GetCurrentPlotInfo();
-            if (plotInfo.isEmpty)
+            var result = PlotManager.Instance.PlantItemOnCurrentPlot(selectedItem.itemID);
+            
+            if (result.success)
             {
-                bool allPlaced = true;
+                Debug.Log($"Successfully planted {result.quantityPlanted} {selectedItem.itemName} on plot {result.plotID}");
                 
-                // Place entities based on required quantity
-                for (int i = 0; i < requiredQuantity; i++)
-                {
-                    if (!PlotManager.Instance.AddEntityToCurrentPlot(selectedItem.growsIntoEntityID, i))
-                    {
-                        allPlaced = false;
-                        // Remove any entities that were already placed if failed
-                        for (int j = 0; j < i; j++)
-                        {
-                            PlotManager.Instance.RemoveEntityFromCurrentPlot(j);
-                        }
-                        break;
-                    }
-                }
+                // Refresh inventory display
+                RefreshInventoryDisplay();
                 
-                if (allPlaced)
-                {
-                    // Remove items from inventory
-                    GameDataManager.Instance.RemovePlayerItem(selectedItem.itemID, requiredQuantity);
-                    
-                    // Save changes
-                    GameDataManager.Instance.SaveGame();
-                    
-                    Debug.Log($"Placed {requiredQuantity} {selectedItem.itemName} on current plot");
-                    
-                    // Close inventory after successful use
-                    CloseShop();
-                }
-                else
-                {
-                    Debug.LogWarning("Failed to place all entities on plot");
-                }
+                // Close inventory after successful use
+                CloseShop();
             }
             else
             {
-                Debug.LogWarning("Plot is not empty");
+                Debug.LogWarning($"Failed to plant {selectedItem.itemName}: {result.errorMessage}");
             }
         }
     }

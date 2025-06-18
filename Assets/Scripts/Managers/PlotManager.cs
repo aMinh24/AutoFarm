@@ -14,6 +14,7 @@ public class PlotManager : BaseManager<PlotManager>
     private IPlotService plotService;
     private IPlotNavigationService navigationService;
     private IPlotEntityService entityService;
+    private PlotPlantingService plantingService;
     
     protected override void Awake()
     {
@@ -33,6 +34,7 @@ public class PlotManager : BaseManager<PlotManager>
         navigationService = new PlotNavigationService(plotService);
         plotService.SetNavigationService(navigationService);
         entityService = new PlotEntityService(plotService);
+        plantingService = new PlotPlantingService(plotService, entityService);
         
         // Subscribe to navigation events
         navigationService.OnCurrentPlotChanged += (plotID) => OnCurrentPlotChanged?.Invoke(plotID);
@@ -183,6 +185,44 @@ public class PlotManager : BaseManager<PlotManager>
         }
         
         return new HarvestCurrentPlotResult { success = false };
+    }
+    
+    // Planting Service API
+    public PlantingResult PlantItemOnPlot(int plotID, ItemID itemID)
+    {
+        var result = plantingService.PlantItemOnPlot(plotID, itemID);
+        
+        if (result.success)
+        {
+            OnPlotEntityStatusChanged?.Invoke(plotID, true);
+            OnPlotUpdated?.Invoke(plotID);
+        }
+        
+        return result;
+    }
+    
+    public PlantingResult PlantItemOnCurrentPlot(ItemID itemID)
+    {
+        var result = plantingService.PlantItemOnCurrentPlot(itemID);
+        
+        if (result.success)
+        {
+            OnPlotEntityStatusChanged?.Invoke(result.plotID, true);
+            OnPlotUpdated?.Invoke(result.plotID);
+        }
+        
+        return result;
+    }
+    
+    public bool CanPlantOnPlot(int plotID, ItemID itemID)
+    {
+        return plantingService.CanPlantOnPlot(plotID, itemID);
+    }
+    
+    public bool CanPlantOnCurrentPlot(ItemID itemID)
+    {
+        var currentPlot = plotService.GetCurrentPlot();
+        return currentPlot != null && plantingService.CanPlantOnPlot(currentPlot.plotID, itemID);
     }
     
     #endregion

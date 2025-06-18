@@ -312,6 +312,9 @@ public class GameDataManager : BaseManager<GameDataManager>
     {
         Debug.Log("Game loaded successfully");
         
+        // Ensure data is properly prepared after loading
+        data?.PrepareAfterLoad();
+        
         // Process offline worker progress
         ProcessOfflineWorkerProgress();
         

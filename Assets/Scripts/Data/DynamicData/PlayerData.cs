@@ -43,7 +43,7 @@ public class PlayerData
     [JsonConstructor]
     public PlayerData()
     {
-        InitializeDefaults();
+        // Don't call InitializeDefaults here - only when explicitly creating new game
     }
 
     private void InitializeDefaults()
@@ -69,6 +69,12 @@ public class PlayerData
         
         busyWorkersCount = 0;
         earnedGoldTotal = 0;
+    }
+
+    // Add method to initialize for new game only
+    public void InitializeForNewGame()
+    {
+        InitializeDefaults();
     }
 
     public void SerializeInventory()

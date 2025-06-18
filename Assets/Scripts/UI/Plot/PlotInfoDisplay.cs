@@ -218,12 +218,6 @@ public class PlotInfoDisplay : MonoBehaviour
         }
     }
     
-    public void SetPlotID(int newPlotID)
-    {
-        plotID = newPlotID;
-        UpdateDisplay();
-    }
-    
     private void OnDestroy()
     {
         if (PlotManager.Instance != null)
@@ -234,11 +228,4 @@ public class PlotInfoDisplay : MonoBehaviour
         }
     }
 
-    private int GetBonusAdjustedProducts(int baseProducts)
-    {
-        if (GameDataManager.Instance == null) return baseProducts;
-        
-        float equipmentMultiplier = GameDataManager.Instance.GetEquipmentYieldMultiplier();
-        return Mathf.RoundToInt(baseProducts * equipmentMultiplier);
-    }
 }
