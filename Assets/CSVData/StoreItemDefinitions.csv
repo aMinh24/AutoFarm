@@ -1,0 +1,8 @@
+StoreID,DisplayName,Description,PurchaseType,Amount,Price,ReferencedItemID,ReferencedEntityID
+TomatoSeedSale,Tomato Seeds,Buy tomato seeds.,Seed,1,30,TomatoSeed,None
+BlueberrySeedSale,Blueberry Seeds,Buy blueberry seeds.,Seed,1,50,BlueberrySeed,None
+StrawberrySeedPackSale,Strawberry Seed Pack (10),Buy a pack of 10 strawberry seeds.,Seed,10,400,StrawberrySeed,None
+DairyCowSale,Dairy Cow,Buy a dairy cow.,Animal,1,100,None,MILK_COW
+HireWorker,Hire Worker,Hire an additional worker.,Worker,1,500,None,None
+UpgradeEquipment,Upgrade Equipment,Upgrade farm equipment.,EquipmentUpgrade,1,500,None,None
+BuyLandPlot,Buy Land Plot,Expand your farm.,Land,1,500,None,None

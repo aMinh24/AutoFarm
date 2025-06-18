@@ -1,0 +1,10 @@
+ItemID,ItemName,ItemType,Description,BaseSalePrice,BasePurchasePrice,PurchasePackSize,GrowsIntoEntityID,ProducedByEntityID
+Gold,Gold,Currency,The primary currency.,0,0,1,None,None
+TomatoSeed,TomatoSeed,Seed,Grows into a tomato plant.,0,30,1,TOMATO_PLANT,None
+BlueberrySeed,BlueberrySeed,Seed,Grows into a blueberry plant.,0,50,1,BLUEBERRY_PLANT,None
+StrawberrySeed,StrawberrySeed,Seed,Grows into a strawberry plant.,0,40,10,STRAWBERRY_PLANT,None
+Cow,Cow,Animal,"A dairy cow, ready to be placed.",0,100,1,MILK_COW,None
+Tomato,Tomato,Product,"A ripe, juicy tomato.",5,0,1,None,TOMATO_PLANT
+Blueberry,Blueberry,Product,"A sweet, ripe blueberry.",8,0,1,None,BLUEBERRY_PLANT
+Strawberry,Strawberry,Product,"A delicious, red strawberry.",6,0,1,None,STRAWBERRY_PLANT
+Milk,Milk,Product,A gallon of fresh milk.,15,0,1,None,MILK_COW

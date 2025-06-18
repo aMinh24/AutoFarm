@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45ad448c9a0bee143b8f2bdfdf5b9a77, type: 3}
+  m_Name: Milk
+  m_EditorClassIdentifier: 
+  itemID: 8
+  itemName: Milk
+  itemType: 2
+  description: A gallon of fresh milk.
+  icon: {fileID: 111856897, guid: ece3d1b07ed885044a4cd69045409350, type: 3}
+  baseSalePrice: 15
+  basePurchasePrice: 0
+  purchasePackSize: 1
+  growsIntoEntityID: 0
+  producedByEntityID: 4

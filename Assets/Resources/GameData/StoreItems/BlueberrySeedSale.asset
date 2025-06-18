@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c098120e7084c5438e4902e7f1c1e62, type: 3}
+  m_Name: BlueberrySeedSale
+  m_EditorClassIdentifier: 
+  storeID: 2
+  displayName: Blueberry Seeds
+  description: Buy blueberry seeds.
+  purchaseType: 0
+  icon: {fileID: -1290822326, guid: b32803e1ba6a61e4bb659854814f2d70, type: 3}
+  amount: 1
+  price: 50
+  referencedItemID: 3
+  referencedEntityID: 0

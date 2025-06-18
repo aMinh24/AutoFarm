@@ -1,0 +1,5 @@
+EntityID,EntityName,EntityType,Description,BaseProductionTime,BaseYieldAmount,TotalYieldsLimit,ProductProducedItemID,SeedItemID,PurchasePrice,DecayTimeAfterLastYield
+TOMATO_PLANT,Tomato Plant,Plant,Grows delicious tomatoes.,10,1,40,Tomato,TomatoSeed,0,60
+BLUEBERRY_PLANT,Blueberry Plant,Plant,Grows sweet blueberries.,15,1,40,Blueberry,BlueberrySeed,0,60
+STRAWBERRY_PLANT,Strawberry Plant,Plant,Grows juicy strawberries.,5,1,20,Strawberry,StrawberrySeed,0,60
+MILK_COW,Dairy Cow,Animal,Produces fresh milk.,30,1,100,Milk,None,100,60
