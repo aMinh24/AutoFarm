@@ -22,7 +22,7 @@ MonoBehaviour:
   - itemID: 9
     amount: 2
   startingWorkers: 0
-  startingEquipmentLevel: 0
+  startingEquipmentLevel: 1
   workerTaskDuration: 2
   equipmentYieldBonusPerLevel: 0.1
   winConditionGold: 1000000

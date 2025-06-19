@@ -1,3 +1,5 @@
+Link Youtube: https://youtu.be/bJkPCyLDGoA
+
 # AutoFarm Core
 
 Project này tập trung xây dựng phần lõi (core) của game AutoFarm, tách biệt khỏi giao diện người dùng (UI) và các hiệu ứng hình ảnh.
